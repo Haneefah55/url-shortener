@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/url-service/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/url-service/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/url-service",
+  "projects": {
+    "analytics": {
+      "type": "application",
+      "root": "apps/analytics",
+      "entryFile": "main",
+      "sourceRoot": "apps/analytics/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/analytics/tsconfig.app.json"
+      }
+    },
+    "notification": {
+      "type": "application",
+      "root": "apps/notification",
+      "entryFile": "main",
+      "sourceRoot": "apps/notification/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/notification/tsconfig.app.json"
+      }
+    },
+    "url-service": {
+      "type": "application",
+      "root": "apps/url-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/url-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/url-service/tsconfig.app.json"
+      }
+    }
+  }
+}
