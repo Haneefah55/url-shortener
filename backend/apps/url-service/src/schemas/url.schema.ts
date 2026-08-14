@@ -15,10 +15,10 @@ export class Url extends Document {
   @Prop({ default: 0 })
   clicks: number;
 
-		createdAt: Date;
+	createdAt: Date;
   updatedAt: Date;
 
-		@Prop({ required: true })
+	@Prop({ required: true })
   userId: string;
 
 }

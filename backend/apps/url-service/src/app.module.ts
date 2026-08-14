@@ -8,6 +8,9 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 
 import { RabbitMQPublisherService } from './events/rabbitmq-publisher.service';
 
+import { AuthModule } from './auth/auth.module';
+import { AccountModule } from './account/account.module';
+
 @Module({
   imports:[
 			MongooseModule.forRoot(process.env.MONGODB_URI!, {
@@ -27,9 +30,9 @@ import { RabbitMQPublisherService } from './events/rabbitmq-publisher.service';
         return connection;
       },
     }),
-			
-			
-			MongooseModule.forFeature([{ name: Url.name, schema: UrlSchema }])],
+			MongooseModule.forFeature([{ name: Url.name, schema: UrlSchema }]),
+			AuthModule,
+			AccountModule],
   controllers: [AppController],
   providers: [
     AppService,

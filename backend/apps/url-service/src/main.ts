@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import * as cookieParser from 'cookie-parser';
 import 'dotenv/config'
 
 async function bootstrap() {
@@ -10,6 +11,7 @@ async function bootstrap() {
 	
 	app.setGlobalPrefix("api")
 	app.enableCors()
+  app.use(cookieParser())
 	//const eventQueue = app.get('URL_QUEUE');
   //await eventQueue.connect();
   await app.listen(port ?? 3000);
