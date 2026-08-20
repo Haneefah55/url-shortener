@@ -24,7 +24,7 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {}
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "apps/**/*", "lib/**/*"],
   "exclude": ["node_modules", "dist"]
   
 }

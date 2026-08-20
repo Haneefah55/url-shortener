@@ -20,4 +20,21 @@ export class AnalyticsController {
       channel.nack(message, false, true); // requeue
     }
   }
+
+
+  @EventPattern('email.sent')
+  async handleEmailSent(@Payload() data: any, @Ctx() context: RmqContext) {
+    console.log('Email sent event received:', data);
+    const channel = context.getChannelRef();
+    const message = context.getMessage();
+      try {
+
+    channel.ack(message);
+    } catch (err) {
+      console.log('Failed to init stats', err);
+      channel.nack(message, false, true); // requeue
+    }
+}
+
+
 }

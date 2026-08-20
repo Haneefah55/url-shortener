@@ -9,7 +9,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { RabbitMQPublisherService } from './events/rabbitmq-publisher.service';
 
 import { AuthModule } from './auth/auth.module';
-import { AccountModule } from './account/account.module';
+
 
 @Module({
   imports:[
@@ -31,8 +31,7 @@ import { AccountModule } from './account/account.module';
       },
     }),
 			MongooseModule.forFeature([{ name: Url.name, schema: UrlSchema }]),
-			AuthModule,
-			AccountModule],
+			AuthModule],
   controllers: [AppController],
   providers: [
     AppService,

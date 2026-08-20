@@ -33,7 +33,7 @@ export class RabbitMQPublisherService implements OnModuleInit, OnModuleDestroy {
   }
 
   async onModuleDestroy() {
-    await this.channel?.close();
-    await this.connection?.close();
+    await this.channel.close();
+    await this.connection.close();
   }
 }

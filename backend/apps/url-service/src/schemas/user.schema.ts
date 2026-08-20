@@ -1,6 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { HydratedDocument } from 'mongoose'
 
+export enum UserPlan {
+  FREE = 'free',
+  PRO = 'pro',
+  ENTERPRISE = 'enterprise',
+}
+
+
 export type UserDocument = HydratedDocument<User>
 
 @Schema({
@@ -15,13 +22,18 @@ export class User {
   @Prop({ type: String, required: true, unique: true, lowercase: true, trim: true })
   email!: string
 
+  @Prop({ type: String, required: true, trim: true, minLength: 8 })
+  password?: string
+
   @Prop({ type: Boolean, default: false })
   emailVerified!: boolean
 
   @Prop({ type: String })
   image?: string
 
-  @Prop({ type: Number})
+  
+
+  @Prop({ type: Number, default: 0 })
   tokenVersion!: number
 
 
@@ -29,17 +41,17 @@ export class User {
   lastLogin!: Date
 
   
-  @Prop({ type: String, default: 'free' })
+  @Prop({ type: String, enum: UserPlan, default: UserPlan.FREE })
   plan!: string
 
   @Prop({ type: Number, default: 50 })
   urlLimit!: number
 
-
-  @Prop({ type: String });
+  
+  @Prop({ type: String })
   resetPasswordToken!: string
   
-  @Prop({ type: Date });
+  @Prop({ type: Date })
   resetPasswordExpiresAt!: Date
 
   @Prop({ type: String})
