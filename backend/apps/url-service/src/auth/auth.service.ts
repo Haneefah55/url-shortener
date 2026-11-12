@@ -7,7 +7,7 @@ import { randomUUID } from 'crypto'
 import { jwtService } from '@nestjs/jwt'
 import { TokenService } from './token.service'
 import { Model } from 'mongoose';
-import { RabbitMQPublisherService} from '../events/rabbitmq-publisher.service'
+import { RabbitMQPublisherService} from '../rabbitMQ/rabbitmq-publisher.service'
 
 
 
@@ -104,46 +104,7 @@ export class AuthService {
       console.log("error verifying email", error.message)
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)
     }
-  } 
-  
-/**
-  
-  async generateTokens(userId: string, email: string, tokenVersion: number) {
-    const tokenId = randomUUID();
-
-    const [accessToken, refreshToken] = await Promise.all([
-      
-      this.jwt.signAsync(
-        {
-          sub: userId,
-          email,
-        },
-        {
-          secret: process.env.JWT_ACCESS_SECRET!,
-          expiresIn: '15m',
-        },
-      ),
-
-      
-      this.jwt.signAsync(
-        {
-          sub: userId,
-          jti: tokenId,
-          version: tokenVersion,
-        },
-        {
-          secret: process.env.JWT_REFRESH_SECRET!,
-          expiresIn: '7d',
-        },
-      ),
-    ]);
-
-    return {
-      accessToken,
-      refreshToken,
-    };
   }
-
-**/
+  
   
 }

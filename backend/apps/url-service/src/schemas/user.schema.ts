@@ -59,6 +59,12 @@ export class User {
   
   @Prop({ type: Date})
   verificationTokenExpiresAt!: Date
+
+  @Prop({ sparse: true, unique: true })
+  googleId?: string;
+
+  @Prop({ default: 'local' })
+  authProvider!: string; // 'local' or 'google'
   
   createdAt?: Date
   updatedAt?: Date

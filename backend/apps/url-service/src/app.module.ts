@@ -1,11 +1,13 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './guards/auth.guard'
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import 'dotenv/config';
 import { MongooseModule } from '@nestjs/mongoose'
 import { Url, UrlSchema } from './schemas/url.schema';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-
+import { AuthMiddleware } from './middleware/auth.middleware'
 import { RabbitMQPublisherService } from './events/rabbitmq-publisher.service';
 
 import { AuthModule } from './auth/auth.module';
@@ -19,7 +21,7 @@ import { AuthModule } from './auth/auth.module';
           console.log('✅ MongoDB connected');
         });
 
-        connection.on('error', (error) => {
+        connection.on('error', (error: any) => {
           console.error('❌ MongoDB connection error:', error);
         });
 
@@ -36,8 +38,17 @@ import { AuthModule } from './auth/auth.module';
   providers: [
     AppService,
     RabbitMQPublisherService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
   ],
 })
-export class AppModule {}
-
-
+  
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AuthMiddleware)
+      .forRoutes({ path: '/api/url/*', method: RequestMethod.ALL });
+  }
+}
