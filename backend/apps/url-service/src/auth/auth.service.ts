@@ -8,7 +8,7 @@ import { jwtService } from '@nestjs/jwt'
 import { TokenService } from './token.service'
 import { Model } from 'mongoose';
 import { RabbitMQPublisherService} from '../rabbitMQ/rabbitmq-publisher.service'
-
+import { OAuth2Client } from 'google-auth-library';
 
 
 @Injectable()
@@ -105,6 +105,11 @@ export class AuthService {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)
     }
   }
+
+  
+
+
+
   
   
 }
