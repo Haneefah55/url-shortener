@@ -11,6 +11,7 @@ import { AuthMiddleware } from './middleware/auth.middleware'
 import { RabbitMQPublisherService } from './events/rabbitmq-publisher.service';
 
 import { AuthModule } from './auth/auth.module';
+import { UrlModule } from './url/url.module';
 
 
 @Module({
@@ -32,8 +33,8 @@ import { AuthModule } from './auth/auth.module';
         return connection;
       },
     }),
-			MongooseModule.forFeature([{ name: Url.name, schema: UrlSchema }]),
-			AuthModule],
+			AuthModule,
+			UrlModule],
   controllers: [AppController],
   providers: [
     AppService,
@@ -49,6 +50,6 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)
-      .forRoutes({ path: '/api/url/*', method: RequestMethod.ALL });
+      .forRoutes({ path: '/api/urls/*', method: RequestMethod.ALL });
   }
 }

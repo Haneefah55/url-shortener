@@ -16,9 +16,6 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 
-
-
-
 @Injectable()
 export class GoogleAuthService {
   constructor(
@@ -78,7 +75,7 @@ export class GoogleAuthService {
       user = await this.userModel.create({
         username: name ? name.replace(/\s+/g, '').toLowerCase() + Math.floor(Math.random() * 1000) : `user_${Math.floor(Math.random() * 10000)}`,
         email,
-        emailVerified: true, // Google pre-verifies emails
+        emailVerified: true, 
         googleId,
         authProvider: 'google',
         tokenVersion: 0,
@@ -90,9 +87,10 @@ export class GoogleAuthService {
         email: user.email,
         userId: user._id,
       };
-      this.publisher.publish("user.created", eventPayload);
+      
+      this.publisher.publish("user.verified", eventPayload);
     } else if (!user.googleId) {
-      // optional if user has previously signup with google
+      // optional if user has previously signup without google
       user.googleId = googleId;
       user.emailVerified = true;
       await user.save();

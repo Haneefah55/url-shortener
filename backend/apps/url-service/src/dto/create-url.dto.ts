@@ -2,15 +2,18 @@
 import { IsUrl, IsOptional, IsString, IsNotEmpty } from 'class-validator';
 
 export class CreateUrlDto {
-	
- @IsUrl()
- longUrl: string;
 
-	@IsString()
-	@IsNotEmpty()
-	userId: string
+  @IsNotEmpty()
+  @IsUrl({}, { message: 'Invalid URL format' })
+  originalUrl!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  userId!: string
 	
- @IsOptional()
- @IsString()
- customCode?: string;
+  @IsOptional()
+  @IsString()
+  customCode?: string;
 }
+
+

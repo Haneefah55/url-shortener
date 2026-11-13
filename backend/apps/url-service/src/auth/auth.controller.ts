@@ -1,21 +1,24 @@
 
-import { Controller, Post, Body, Res, UnauthorizedException, HttpException, HttpStatus, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, Body, Res, UnauthorizedException, HttpException, HttpStatus, BadRequestException } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from '../dto/login.dto';
 import { SignupDto } from '../dto/signup.dto';
-import 'dotenv/config'
+import dotenv from 'dotenv/config'
 import { OAuth2Client } from 'google-auth-library';
 import { CurrentUser } from '../decorators/current-user.decorator'
 import { Public } from '../decorators/public.decorator'
+import { GoogleAuthService } from './google-auth.service'
+
+dotenv.config()
+
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
-    )
-  , {}
+    private readonly googleService: GoogleAuthService,
+    ){}
 
   @Public()
   @Post('signup')
@@ -37,7 +40,7 @@ export class AuthController {
 
     try {
 
-      res.cookie('access_token', accessToken, {
+      res.cookie('accessToken', accessToken, {
       httpOnly: true, // Prevents JavaScript (XSS) access
       secure: process.env.NODE_ENV! === 'production', // Requires HTTPS in production
       sameSite: 'strict', // CSRF mitigation
@@ -57,7 +60,7 @@ export class AuthController {
 
   @Post('logout')
   async logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('access_token', { path: '/' });
+    res.clearCookie('accessToken', { path: '/' });
     return { message: 'Logged out successfully' };
   }
 
@@ -77,7 +80,7 @@ try {
 
     const { accessToken, refreshToken, user} = await this.authService.verifyEmail(code)
 
-    res.cookie('access_token', accessToken, {
+    res.cookie('accessToken', accessToken, {
       httpOnly: true, // Prevents JavaScript (XSS) access
       secure: process.env.NODE_ENV! === 'production', // Requires HTTPS in production
       sameSite: 'strict', // CSRF mitigation
@@ -85,7 +88,7 @@ try {
       path: '/api',
     });
   
-    res.cookie('refresh_token', refreshToken, {
+    res.cookie('refreshToken', refreshToken, {
       httpOnly: true, // Prevents JavaScript (XSS) access
       secure: process.env.NODE_ENV! === 'production', // Requires HTTPS in production
       sameSite: 'strict', // CSRF mitigation
@@ -120,79 +123,43 @@ try {
     
   }
 
+  @Get('google')
+  redirectToGoogle(
+    @Res() res: Response) {
+    const { url } = this.GoogleAuthService.getGoogleAuthUrl();
+    return res.redirect(url);
+  }
+
+
+  @Get('google/callback')
+  async handleGoogleCallback(
+    @Query('code') code: string, 
+    @Res({ passthrough: true }) res: Response) {
+  
+    const { accessToken, refreshToken, user } = await this.GoogleAuthService.handleGoogleAuthCallback(code);
+
+  // Set cookies 
+  res.cookie('accessToken', accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 15 * 60 * 1000, 
+  });
+
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  // Redirect user back to your frontend dashboard/home page after successful login
+  return res.redirect(process.env.FRONTEND_REDIRECT_URL || 'http://localhost:3000/dashboard');
+}
+
+
+  
+
   
 }
 
-
-
-// Inside your Service constructor or module scope:
-;
-
-async googleAuth(credential: string) {
-  try {
-    
-    const ticket = await this.googleClient.verifyIdToken({
-      idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-
-    const payload = ticket.getPayload();
-    if (!payload || !payload.email) {
-      throw new HttpException("Invalid Google token", HttpStatus.BAD_REQUEST);
-    }
-
-    const { email, name, sub: googleId } = payload;
-
-    // 2. Check if user already exists
-    let user = await this.userModel.findOne({ email });
-
-    if (!user) {
-      // 3. Create a new user if they don't exist
-      user = await this.userModel.create({
-        username: name.replace(/\s+/g, '').toLowerCase() + Math.floor(Math.random() * 1000), // Generate a default username
-        email,
-        emailVerified: true, // Google pre-verifies emails
-        googleId,
-        authProvider: 'google',
-        tokenVersion: 0,
-      });
-
-      // Publish user.created event matching your signup flow pattern
-      const eventPayload = {
-        username: user.username,
-        email: user.email,
-        userId: user._id,
-      };
-      this.publisher.publish("user.created", eventPayload);
-    } else if (!user.googleId) {
-      // Optional: Link Google ID if user previously signed up via email/password
-      user.googleId = googleId;
-      user.emailVerified = true;
-      await user.save();
-    }
-
-    // 4. Generate your app's tokens
-    const { accessToken, refreshToken } = await this.tokenService.generateTokens(
-      String(user._id),
-      user.email,
-      user.tokenVersion
-    );
-
-    return {
-      success: true,
-      accessToken,
-      refreshToken,
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-      },
-    };
-  } catch (error: any) {
-    console.log("Google auth error:", error.message);
-    throw new HttpException(
-      error.message || "Google authentication failed", 
-      HttpStatus.BAD_REQUEST
-    );
-  }
-}

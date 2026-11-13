@@ -7,19 +7,23 @@ export class Url extends Document {
 
 	
   @Prop({ required: true, unique: true })
-  shortCode: string;
+  shortCode!: string;
 
   @Prop({ required: true })
-  longUrl: string;
+  longUrl!: string;
 
+  @Prop({ default: true })
+  isactive!: boolean
+  
   @Prop({ default: 0 })
-  clicks: number;
+  clicks!: number;
+  
 
-	createdAt: Date;
-  updatedAt: Date;
+	createdAt!: Date;
+  updatedAt!: Date;
 
-	@Prop({ required: true })
-  userId: string;
+	@Prop({ })
+  userId!: string;
 
 }
 
